@@ -1,8 +1,8 @@
 package greetings
 
-type Person interface{}
-type SayHiRequest interface{}
-type SayHiResponse interface{}
+type Person struct{}
+type SayHiRequest struct{}
+type SayHiResponse struct{}
 
 var _ = `
 	type Person struct {
@@ -19,4 +19,4 @@ var _ = `
 	}
 `
 
-type SayHi func(request SayHiRequest)(SayHiResponse, error)
+type SayHi func(request *SayHiRequest)(*SayHiResponse, error)

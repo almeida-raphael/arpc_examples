@@ -1,34 +1,36 @@
 package greetings
 
 import (
+	"context"
 	"github.com/almeida-raphael/arpc/controller"
-	"github.com/almeida-raphael/arpc/headers"
 	"github.com/almeida-raphael/arpc/helpers"
 )
 
-var serviceID = helpers.Hash("greetings")
+var serviceID = helpers.Hash("greetings_client")
 
 //////////////////////////////////////////////////////// CLIENT ////////////////////////////////////////////////////////
 
 type Greetings struct {
-	controller controller.RPC
+	controller *controller.RPC
 }
 
-func NewGreetings(controller controller.RPC) Greetings {
+func NewGreetings(controller *controller.RPC) Greetings {
 	return Greetings{
 		controller: controller,
 	}
 }
 
-func (greetings *Greetings)SayHi(request *SayHiRequest)(*SayHiResponse, error){
+func (greetings *Greetings)SayHi(request *SayHiRequest, ctx ...context.Context)(*SayHiResponse, error){
+	if ctx == nil || len(ctx) == 0{
+		ctx = []context.Context{context.Background()}
+	}
 	response := SayHiResponse{}
-	err := greetings.controller.SendRPC(headers.Call, serviceID, 0, request, &response)
+	err := greetings.controller.SendRPCCall(ctx[0], serviceID, 0, request, &response)
 	if err != nil {
 		return nil, err
 	}
 	return &response, nil
 }
-
 
 //////////////////////////////////////////////////////// SERVER ////////////////////////////////////////////////////////
 
@@ -39,7 +41,7 @@ type GreetingsServer interface {
 func bindSayHi(server GreetingsServer)(
 	func(msg []byte)([]byte, error),
 ) {
-	bind := func(msg []byte)([]byte, error){
+	return func(msg []byte)([]byte, error){
 		request := SayHiRequest{}
 		err := request.UnmarshalBinary(msg)
 		if err != nil {
@@ -47,30 +49,26 @@ func bindSayHi(server GreetingsServer)(
 		}
 
 		response, err := server.SayHi(&request)
+		if err != nil {
+			return nil, err
+		}
 
-		responseBytes, err := helpers.SerializeWithHeaders(headers.Result, serviceID, 0, response)
+		responseBytes, err := response.MarshalBinary()
 		if err != nil {
 			return nil, err
 		}
 
 		return responseBytes, nil
 	}
-
-	return bind
 }
 
 ////////////////////////////////////////////////////// REGISTRAR ///////////////////////////////////////////////////////
 
-func RegisterGreetingsServer(controller controller.RPC, srv GreetingsServer)error{
-	err := controller.RegisterService(
+func RegisterGreetingsServer(controller controller.RPC, srv GreetingsServer){
+	controller.RegisterService(
 		serviceID,
 		map[uint16]func(message []byte)([]byte, error){
 			0: bindSayHi(srv),
 		},
 	)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }

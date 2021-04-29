@@ -239,4 +239,5 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.toptal.com/developers/gitignore/api/linux,windows,go,jetbrains,sublimetext,osx,macos
+# Project
+certificates
