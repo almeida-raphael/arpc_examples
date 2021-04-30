@@ -4,12 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"strings"
 	"time"
 )
 
 func main(){
-	data, err := ioutil.ReadFile("./assets/word_count.txt")
+	assetPath := os.Getenv("ASSET_PATH")
+	data, err := ioutil.ReadFile(assetPath)
 	if err != nil {
 		panic(err)
 	}
