@@ -1,9 +1,8 @@
 package arpc_examples
 
-import "testing"
-
 import (
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 // TestEmpty this function is a test placeholder
