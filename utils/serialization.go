@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// TestSerialization get serialization and deserialization times
 func TestSerialization(serializable interfaces.Serializable)(*time.Duration, *time.Duration, int, error){
 	serializableLen, err := serializable.MarshalLen()
 	if err != nil{

@@ -1,4 +1,4 @@
-package arpc_examples
+package examples
 
 import (
 	"github.com/stretchr/testify/assert"

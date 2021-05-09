@@ -24,6 +24,7 @@ func LoadCA(caChainFiles ...string) (*x509.CertPool, error) {
 	return certs, nil
 }
 
+// LoadCertificates help load certificates for QUIC connection
 func LoadCertificates(certFilePath, pemFilePath string)(*tls.Certificate, error){
 	crtFile, err := ioutil.ReadFile(certFilePath)
 	if err != nil {

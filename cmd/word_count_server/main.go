@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/almeida-raphael/arpc/channel"
 	"github.com/almeida-raphael/arpc/controller"
-	"github.com/almeida-raphael/arpc_examples/examples/word_count"
+	"github.com/almeida-raphael/arpc_examples/examples/wordcount"
 	"github.com/almeida-raphael/arpc_examples/utils"
 	"os"
 	"strings"
@@ -14,24 +14,26 @@ import (
 )
 
 
+// WordCountServerDefinition struct to implement wordcount aRPC service procedures
 type WordCountServerDefinition struct {}
 
-func (gs *WordCountServerDefinition)CountWords(request *word_count.Text)(*word_count.CountedWords, error){
+// CountWords aRPC WordCount.CountWords function implementation
+func (gs *WordCountServerDefinition)CountWords(request *wordcount.Text)(*wordcount.CountedWords, error){
 	processingTime := time.Now()
 	wordFrequency := make(map[string]uint64)
 	for _, word := range strings.Fields(request.Data){
 		wordFrequency[word] ++
 	}
 
-	wordFrequencyList := make([]*word_count.Entry, 0, len(wordFrequency))
+	wordFrequencyList := make([]*wordcount.Entry, 0, len(wordFrequency))
 	for word, count := range wordFrequency{
-		wordFrequencyList = append(wordFrequencyList, &word_count.Entry{
+		wordFrequencyList = append(wordFrequencyList, &wordcount.Entry{
 			Word:  word,
 			Count: count,
 		})
 	}
 
-	response := word_count.CountedWords{
+	response := wordcount.CountedWords{
 		Message: wordFrequencyList,
 	}
 	fmt.Printf("Processing Time: %vs", time.Since(processingTime).Seconds())
@@ -61,7 +63,7 @@ func main(){
 		nil,
 	))
 
-	word_count.RegisterWordCountServer(aRPCController, &WordCountServerDefinition{})
+	wordcount.RegisterWordcountServer(aRPCController, &WordCountServerDefinition{})
 
 	err = aRPCController.StartServer(context.Background())
 	if err != nil {
