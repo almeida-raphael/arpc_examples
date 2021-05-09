@@ -13,7 +13,7 @@ This is a repository for aRPC examples, [click here](https://github.com/almeida-
 ### Run
 To run the examples you have to install [aRPC Code Generator](https://github.com/almeida-raphael/arpc_code_generator). 
 Then clone this repository, install the dependencies with `go mod download` and then run 
-`arpc_gen -input-path examples/arpc -packages-root-path examples`, the code generator will create the aRPC needed files. 
+`arpc_code_generator -input-path examples/arpc -packages-root-path examples`, the code generator will create the aRPC needed files. 
 Now you can run any of the examples in the *cmd* folder.
 
 ### WIP
