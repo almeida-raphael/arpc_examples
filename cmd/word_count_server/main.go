@@ -3,28 +3,27 @@ package main
 import (
 	"context"
 	"crypto/tls"
+	"fmt"
 	"github.com/almeida-raphael/arpc/channel"
 	"github.com/almeida-raphael/arpc/controller"
+	"github.com/almeida-raphael/arpc_examples/examples/word_count"
 	"github.com/almeida-raphael/arpc_examples/utils"
-	"github.com/almeida-raphael/arpc_examples/word_count_example/word_count"
 	"os"
 	"strings"
+	"time"
 )
 
 
 type WordCountServerDefinition struct {}
 
 func (gs *WordCountServerDefinition)CountWords(request *word_count.Text)(*word_count.CountedWords, error){
+	processingTime := time.Now()
 	wordFrequency := make(map[string]uint64)
 	for _, word := range strings.Fields(request.Data){
-		if _, ok := wordFrequency[word]; ok{
-			wordFrequency[word] += 1
-		}else{
-			wordFrequency[word] = 1
-		}
+		wordFrequency[word] ++
 	}
 
-	var wordFrequencyList []*word_count.Entry
+	wordFrequencyList := make([]*word_count.Entry, 0, len(wordFrequency))
 	for word, count := range wordFrequency{
 		wordFrequencyList = append(wordFrequencyList, &word_count.Entry{
 			Word:  word,
@@ -32,9 +31,12 @@ func (gs *WordCountServerDefinition)CountWords(request *word_count.Text)(*word_c
 		})
 	}
 
-	return &word_count.CountedWords{
+	response := word_count.CountedWords{
 		Message: wordFrequencyList,
-	}, nil
+	}
+	fmt.Printf("Processing Time: %vs", time.Since(processingTime).Seconds())
+
+	return &response, nil
 }
 
 func main(){

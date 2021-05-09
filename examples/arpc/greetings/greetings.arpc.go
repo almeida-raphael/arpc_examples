@@ -6,9 +6,11 @@ type Person struct {
 }
 
 type SayHiRequest struct {
-    person Person
+	person Person
 }
 
 type SayHiResponse struct {
-    response text
+	response text
 }
+
+type SayHi func(request *SayHiRequest) (*SayHiResponse, error)

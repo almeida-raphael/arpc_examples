@@ -5,10 +5,12 @@ type Text struct {
 }
 
 type Entry struct {
-    word text
-    count uint64
+	word text
+	count uint64
 }
 
 type CountedWords struct {
-    message []Entry
+	message []Entry
 }
+
+type CountWords func(request *Text)(*CountedWords, error)

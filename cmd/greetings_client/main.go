@@ -7,7 +7,7 @@ import (
 	"github.com/almeida-raphael/arpc/channel"
 	"github.com/almeida-raphael/arpc/controller"
 	arpcerrors "github.com/almeida-raphael/arpc/errors"
-	"github.com/almeida-raphael/arpc_examples/greetings_example/greetings"
+	"github.com/almeida-raphael/arpc_examples/examples/greetings"
 	"github.com/almeida-raphael/arpc_examples/utils"
 	"os"
 )
