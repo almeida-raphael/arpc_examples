@@ -158,7 +158,7 @@ func saveServerMetrics(
 
 	if sample == sampleCount-1 && trial == trialsCount-1 {
 		currentMetricsMutex.Lock()
-		atomic.StoreInt32(currentExecution, 0)
+		atomic.StoreInt32(currentExecution, -1) // This is -1 because CollectServerMetrics will sum 1 on defer
 		err := saveJSON(currentMetrics, fmt.Sprintf(saveFilePath, time.Now().UnixNano()))
 		*currentMetrics = initServerMetricsDataCollector(sampleCount, trialsCount)
 		currentMetricsMutex.Unlock()
