@@ -7,10 +7,10 @@ import (
 )
 
 // TestSerialization get serialization and deserialization times
-func TestSerialization(serializable interfaces.Serializable)(*time.Duration, *time.Duration, int, error){
+func TestSerialization(serializable interfaces.Serializable)(*time.Duration, *time.Duration, error){
 	serializableLen, err := serializable.MarshalLen()
 	if err != nil{
-		return nil, nil, 0, err
+		return nil, nil, err
 	}
 
 	buf := make([]byte, serializableLen)
@@ -23,12 +23,12 @@ func TestSerialization(serializable interfaces.Serializable)(*time.Duration, *ti
 	nConsumed, err := serializable.Unmarshal(buf)
 	deserializationTime := time.Since(deserializeStart)
 	if err != nil{
-		return nil, nil, 0, err
+		return nil, nil, err
 	}
 
 	if buffLen != nConsumed{
-		return nil, nil, 0, fmt.Errorf("read byte amount is different from buffer size")
+		return nil, nil, fmt.Errorf("read byte amount is different from buffer size")
 	}
 
-	return &serializationTime, &deserializationTime, serializableLen, nil
+	return &serializationTime, &deserializationTime, nil
 }
