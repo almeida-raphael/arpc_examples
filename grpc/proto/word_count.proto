@@ -1,0 +1,21 @@
+
+syntax = "proto3";
+
+option go_package = "github.com/almeida-raphael/grpc_word_count";
+
+message Text {
+  string data = 1;
+}
+
+message CountedWords {
+  message Entry {
+    string word = 1;
+    uint64 count = 2;
+  }
+  repeated Entry entries = 1;
+}
+
+
+service WordCount {
+  rpc CountWords(Text) returns (CountedWords) {}
+}

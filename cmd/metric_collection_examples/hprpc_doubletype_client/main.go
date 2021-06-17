@@ -2,14 +2,15 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"time"
+
 	"github.com/almeida-raphael/arpc/interfaces"
 	"github.com/almeida-raphael/arpc_examples/hprpc/doubletype"
 	"github.com/almeida-raphael/arpc_examples/utils"
-	"time"
 )
 
-
-func main(){
+func main() {
 	aRPCController := utils.SetupClient()
 
 	service := doubletype.NewDoubletype(&aRPCController)
@@ -20,7 +21,7 @@ func main(){
 
 	requestData := doubletype.NumberList{Entries: utils.GenerateNumbers(1000)}
 
-	Average := func(req interfaces.Serializable)(interfaces.Serializable, error){
+	Average := func(req interfaces.Serializable) (interfaces.Serializable, error) {
 		reqData := req.(*doubletype.NumberList)
 		response, err := service.Average(reqData)
 		if err != nil {
@@ -35,7 +36,6 @@ func main(){
 		fmt.Sprintf("results/doubletype/client/%d.json", time.Now().UnixNano()),
 	)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }
-

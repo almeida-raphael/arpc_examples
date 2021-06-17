@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option go_package = "github.com/almeida-raphael/arpc_examples";
+
+message Amount {
+  int32 value = 1;
+}
+
+message NumbersList {
+  repeated int32 entries = 1;
+}
+
+service GetRandomNumbers {
+  rpc GetNumbers(Amount) returns (NumbersList) {}
+}

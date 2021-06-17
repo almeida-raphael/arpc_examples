@@ -2,25 +2,26 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"time"
+
 	"github.com/almeida-raphael/arpc/interfaces"
 	"github.com/almeida-raphael/arpc_examples/hprpc/getrandomnumbers"
 	"github.com/almeida-raphael/arpc_examples/utils"
-	"time"
 )
 
-
-func main(){
+func main() {
 	aRPCController := utils.SetupClient()
 
 	service := getrandomnumbers.NewGetrandomnumbers(&aRPCController)
 	err := aRPCController.StartClient()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	requestData := getrandomnumbers.Amount{Value: 1000}
 
-	GetNumbers := func(req interfaces.Serializable)(interfaces.Serializable, error){
+	GetNumbers := func(req interfaces.Serializable) (interfaces.Serializable, error) {
 		reqData := req.(*getrandomnumbers.Amount)
 		response, err := service.GetNumbers(reqData)
 		if err != nil {
@@ -35,7 +36,6 @@ func main(){
 		fmt.Sprintf("results/getrandomnumbers/client/%d.json", time.Now().UnixNano()),
 	)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }
-
