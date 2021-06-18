@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/almeida-raphael/arpc/interfaces"
@@ -11,6 +13,16 @@ import (
 )
 
 func main() {
+	valueStr := os.Getenv("VALUE")
+	var value int32 = 1000
+	if valueStr != "" {
+		if v, err := strconv.Atoi(valueStr); err == nil {
+			value = int32(v)
+		} else {
+			log.Fatal(err)
+		}
+	}
+
 	aRPCController := utils.SetupClient()
 
 	service := getrandomnumbers.NewGetrandomnumbers(&aRPCController)
@@ -19,7 +31,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	requestData := getrandomnumbers.Amount{Value: 1000}
+	requestData := getrandomnumbers.Amount{Value: value}
 
 	GetNumbers := func(req interfaces.Serializable) (interfaces.Serializable, error) {
 		reqData := req.(*getrandomnumbers.Amount)
@@ -33,7 +45,7 @@ func main() {
 
 	err = utils.RunClientRPCAndCollectMetrics(
 		20, 1000, &requestData, GetNumbers,
-		fmt.Sprintf("results/getrandomnumbers/client/%d.json", time.Now().UnixNano()),
+		fmt.Sprintf("results/getrandomnumbers_%d/client/%d.json", value, time.Now().UnixNano()),
 	)
 	if err != nil {
 		log.Fatal(err)

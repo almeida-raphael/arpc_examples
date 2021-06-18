@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"os"
 
 	"github.com/almeida-raphael/arpc_examples/grpc/getrandomnumbers"
 
@@ -22,7 +24,7 @@ func getNumbers(request proto.Message) (proto.Message, error) {
 
 var metricsGetNumbers = utils.CollectGRPCServerMetrics(
 	20, 1000, getNumbers,
-	"results/getrandomnumbers_grpc/server/%d.json",
+	fmt.Sprintf("results/getrandomnumbers_grpc_%s", os.Getenv("VALUE"))+"/server/%d.json",
 )
 
 // GetNumbers aRPC server function implementation

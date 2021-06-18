@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"os"
 
 	"github.com/almeida-raphael/arpc_examples/grpc/doubletype"
 	"github.com/almeida-raphael/arpc_examples/utils"
@@ -21,7 +23,7 @@ func average(request proto.Message) (proto.Message, error) {
 
 var metricsAverage = utils.CollectGRPCServerMetrics(
 	20, 1000, average,
-	"results/doubletype_grpc/server/%d.json",
+	fmt.Sprintf("results/doubletype_grpc_%s", os.Getenv("VALUE"))+"/server/%d.json",
 )
 
 // Average aRPC server function implementation

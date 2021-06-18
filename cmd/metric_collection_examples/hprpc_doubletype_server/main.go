@@ -1,27 +1,30 @@
 package main
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/almeida-raphael/arpc/interfaces"
 	"github.com/almeida-raphael/arpc_examples/hprpc/doubletype"
 	"github.com/almeida-raphael/arpc_examples/utils"
 )
 
 // ServerDefinition struct to implement greetings aRPC service procedures
-type ServerDefinition struct {}
+type ServerDefinition struct{}
 
 // getNumbers aRPC server function implementation
-func average(request interfaces.Serializable)(interfaces.Serializable, error){
+func average(request interfaces.Serializable) (interfaces.Serializable, error) {
 	reqData := request.(*doubletype.NumberList)
 	return &doubletype.Result{Value: utils.Average(reqData.Entries)}, nil
 }
 
 var metricsAverage = utils.CollectServerMetrics(
 	20, 1000, average,
-	"results/doubletype/server/%d.json",
+	fmt.Sprintf("results/doubletype_%s", os.Getenv("VALUE"))+"/server/%d.json",
 )
 
 // Average aRPC server function implementation
-func (gs *ServerDefinition)Average(request *doubletype.NumberList)(*doubletype.Result, error){
+func (gs *ServerDefinition) Average(request *doubletype.NumberList) (*doubletype.Result, error) {
 	var reqData interfaces.Serializable = request
 	respData := &doubletype.Result{}
 
@@ -33,9 +36,8 @@ func (gs *ServerDefinition)Average(request *doubletype.NumberList)(*doubletype.R
 	return respData, err
 }
 
-func main(){
+func main() {
 	aRPCController := utils.SetupServer()
 	doubletype.RegisterDoubletypeServer(aRPCController, &ServerDefinition{})
 	utils.StartServer(aRPCController)
 }
-

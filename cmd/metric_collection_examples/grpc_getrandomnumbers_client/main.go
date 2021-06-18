@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/almeida-raphael/arpc_examples/grpc/getrandomnumbers"
@@ -14,6 +16,16 @@ import (
 )
 
 func main() {
+	valueStr := os.Getenv("VALUE")
+	var value int32 = 1000
+	if valueStr != "" {
+		if v, err := strconv.Atoi(valueStr); err == nil {
+			value = int32(v)
+		} else {
+			log.Fatal(err)
+		}
+	}
+
 	conn, err := utils.SetupGRPCClient()
 	if err != nil {
 		log.Fatalf("fail to dial: %v", err)
@@ -25,7 +37,7 @@ func main() {
 	}()
 	client := getrandomnumbers.NewGetRandomNumbersClient(conn)
 
-	requestData := getrandomnumbers.Amount{Value: 1000}
+	requestData := getrandomnumbers.Amount{Value: value}
 
 	GetNumbers := func(req proto.Message) (proto.Message, error) {
 		reqData := req.(*getrandomnumbers.Amount)
@@ -39,7 +51,7 @@ func main() {
 
 	err = utils.RunGRPCClientRPCAndCollectMetrics(
 		20, 1000, &requestData, GetNumbers,
-		fmt.Sprintf("results/getrandomnumbers_grpc/client/%d.json", time.Now().UnixNano()),
+		fmt.Sprintf("results/getrandomnumbers_grpc_%d/client/%d.json", value, time.Now().UnixNano()),
 	)
 	if err != nil {
 		log.Fatal(err)
