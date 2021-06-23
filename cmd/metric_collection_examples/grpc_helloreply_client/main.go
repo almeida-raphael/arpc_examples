@@ -37,7 +37,7 @@ func main() {
 
 	err = utils.RunGRPCClientRPCAndCollectMetrics(
 		20, 1000, &helloreply.Text{Data: utils.GenerateString(1000)}, SayHello,
-		fmt.Sprintf("results/helloreply_grpc/client/%d.json", time.Now().UnixNano()),
+		fmt.Sprintf("results/gRPC/helloreply/client/%d.json", time.Now().UnixNano()),
 	)
 	if err != nil {
 		log.Fatal(err)

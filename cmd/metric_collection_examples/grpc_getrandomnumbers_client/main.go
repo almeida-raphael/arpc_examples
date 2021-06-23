@@ -51,7 +51,7 @@ func main() {
 
 	err = utils.RunGRPCClientRPCAndCollectMetrics(
 		20, 1000, &requestData, GetNumbers,
-		fmt.Sprintf("results/getrandomnumbers_grpc_%d/client/%d.json", value, time.Now().UnixNano()),
+		fmt.Sprintf("results/gRPC/getrandomnumbers_%d/client/%d.json", value, time.Now().UnixNano()),
 	)
 	if err != nil {
 		log.Fatal(err)

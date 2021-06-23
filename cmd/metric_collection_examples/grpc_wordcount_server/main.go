@@ -41,7 +41,7 @@ func countWords(request proto.Message) (proto.Message, error) {
 
 var metricsCountWords = utils.CollectGRPCServerMetrics(
 	20, 1000, countWords,
-	"results/wordcount_grpc/server/%d.json",
+	"results/gRPC/wordcount/server/%d.json",
 )
 
 // CountWords gRPC server function implementation

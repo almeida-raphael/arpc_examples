@@ -2,14 +2,14 @@ package main
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/almeida-raphael/arpc/interfaces"
 	"github.com/almeida-raphael/arpc_examples/hprpc/helloreply"
 	"github.com/almeida-raphael/arpc_examples/utils"
-	"time"
 )
 
-
-func main(){
+func main() {
 	aRPCController := utils.SetupClient()
 
 	service := helloreply.NewHelloreply(&aRPCController)
@@ -18,7 +18,7 @@ func main(){
 		panic(err)
 	}
 
-	SayHello := func(req interfaces.Serializable)(interfaces.Serializable, error){
+	SayHello := func(req interfaces.Serializable) (interfaces.Serializable, error) {
 		reqData := req.(*helloreply.Text)
 		response, err := service.SayHello(reqData)
 		if err != nil {
@@ -30,10 +30,9 @@ func main(){
 
 	err = utils.RunClientRPCAndCollectMetrics(
 		20, 1000, &helloreply.Text{Data: utils.GenerateString(1000)}, SayHello,
-		fmt.Sprintf("results/helloreply/client/%d.json", time.Now().UnixNano()),
+		fmt.Sprintf("results/aRPC/helloreply/client/%d.json", time.Now().UnixNano()),
 	)
 	if err != nil {
 		panic(err)
 	}
 }
-

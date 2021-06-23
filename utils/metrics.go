@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path"
 	"sync"
@@ -110,34 +111,48 @@ func RunClientRPCAndCollectMetrics(
 ) error {
 	samples := make([]sample, runSampleCount)
 	var response interfaces.Serializable
+
+	wg := sync.WaitGroup{}
+	wg.Add(len(samples))
+	mu := sync.Mutex{}
+
 	for idxSamples := range samples {
-		fmt.Printf("Running Sample %d\n", idxSamples+1)
+		_idxSamples := idxSamples
+		go func() {
+			fmt.Printf("Running Sample %d\n", _idxSamples+1)
 
-		aRPCTestResults := make([]time.Duration, runTrialsCount)
-		var err error
-		for idxTrial := range aRPCTestResults {
-			fmt.Printf("Running aRPC Call Trial %d\n", idxTrial+1)
-			rpcStartTime := time.Now()
-			response, err = rpcFunction(request)
-			elapsedTime := time.Since(rpcStartTime)
-			if HandleRemoteError(err) {
-				return err
+			aRPCTestResults := make([]time.Duration, runTrialsCount)
+			var err error
+			for idxTrial := range aRPCTestResults {
+				fmt.Printf("Running aRPC Call Trial %d\n", idxTrial+1)
+				rpcStartTime := time.Now()
+				response, err = rpcFunction(request)
+				elapsedTime := time.Since(rpcStartTime)
+				if HandleRemoteError(err) {
+					log.Fatal(err)
+				}
+				aRPCTestResults[idxTrial] = elapsedTime
 			}
-			aRPCTestResults[idxTrial] = elapsedTime
-		}
 
-		serializationTestResults, err := runSerializationTest(
-			runTrialsCount, request, response,
-		)
-		if err != nil {
-			return err
-		}
+			mu.Lock()
+			serializationTestResults, err := runSerializationTest(
+				runTrialsCount, request, response,
+			)
+			if err != nil {
+				log.Fatal(err)
+			}
 
-		samples[idxSamples] = sample{
-			SerializationTests:    serializationTestResults,
-			ARPCFullTestDurations: aRPCTestResults,
-		}
+			samples[_idxSamples] = sample{
+				SerializationTests:    serializationTestResults,
+				ARPCFullTestDurations: aRPCTestResults,
+			}
+			mu.Unlock()
+
+			wg.Done()
+		}()
 	}
+
+	wg.Wait()
 
 	requestSize, err := request.MarshalLen()
 	if err != nil {
@@ -165,34 +180,50 @@ func RunGRPCClientRPCAndCollectMetrics(
 ) error {
 	samples := make([]sample, runSampleCount)
 	var response proto.Message
+
+	wg := sync.WaitGroup{}
+	wg.Add(len(samples))
+	mu := sync.Mutex{}
+
 	for idxSamples := range samples {
-		fmt.Printf("Running Sample %d\n", idxSamples+1)
+		_idxSamples := idxSamples
 
-		aRPCTestResults := make([]time.Duration, runTrialsCount)
-		var err error
-		for idxTrial := range aRPCTestResults {
-			fmt.Printf("Running gRPC Call Trial %d\n", idxTrial+1)
-			rpcStartTime := time.Now()
-			response, err = rpcFunction(request)
-			elapsedTime := time.Since(rpcStartTime)
-			if HandleRemoteError(err) {
-				return err
+		_request := proto.Clone(request)
+		go func() {
+			fmt.Printf("Running Sample %d\n", _idxSamples+1)
+
+			aRPCTestResults := make([]time.Duration, runTrialsCount)
+			var err error
+			for idxTrial := range aRPCTestResults {
+				fmt.Printf("Running gRPC Call Trial %d\n", idxTrial+1)
+				rpcStartTime := time.Now()
+				response, err = rpcFunction(_request)
+				elapsedTime := time.Since(rpcStartTime)
+				if HandleRemoteError(err) {
+					log.Fatal(err)
+				}
+				aRPCTestResults[idxTrial] = elapsedTime
 			}
-			aRPCTestResults[idxTrial] = elapsedTime
-		}
 
-		serializationTestResults, err := runGRPCSerializationTest(
-			runTrialsCount, request, response,
-		)
-		if err != nil {
-			return err
-		}
+			mu.Lock()
+			serializationTestResults, err := runGRPCSerializationTest(
+				runTrialsCount, request, response,
+			)
+			if err != nil {
+				log.Fatal(err)
+			}
 
-		samples[idxSamples] = sample{
-			SerializationTests:    serializationTestResults,
-			ARPCFullTestDurations: aRPCTestResults,
-		}
+			samples[_idxSamples] = sample{
+				SerializationTests:    serializationTestResults,
+				ARPCFullTestDurations: aRPCTestResults,
+			}
+			mu.Unlock()
+
+			wg.Done()
+		}()
 	}
+
+	wg.Wait()
 
 	testResults := test{
 		RequestSize:  proto.Size(request),

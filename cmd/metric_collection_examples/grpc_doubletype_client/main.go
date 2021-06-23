@@ -49,7 +49,7 @@ func main() {
 
 	err = utils.RunGRPCClientRPCAndCollectMetrics(
 		20, 1000, &requestData, Average,
-		fmt.Sprintf("results/doubletype_grpc_%d/client/%d.json", value, time.Now().UnixNano()),
+		fmt.Sprintf("results/gRPC/doubletype_%d/client/%d.json", value, time.Now().UnixNano()),
 	)
 	if err != nil {
 		log.Fatal(err)

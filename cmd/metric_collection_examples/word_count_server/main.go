@@ -1,27 +1,27 @@
 package main
 
 import (
+	"strings"
+
 	"github.com/almeida-raphael/arpc/interfaces"
 	"github.com/almeida-raphael/arpc_examples/examples/wordcount"
 	"github.com/almeida-raphael/arpc_examples/utils"
-	"strings"
 )
 
-
 // WordCountServerDefinition struct to implement wordcount aRPC service procedures
-type WordCountServerDefinition struct {}
+type WordCountServerDefinition struct{}
 
 // countWords aRPC server function implementation
-func countWords(request interfaces.Serializable)(interfaces.Serializable, error){
+func countWords(request interfaces.Serializable) (interfaces.Serializable, error) {
 	reqData := request.(*wordcount.Text)
 
 	wordFrequency := make(map[string]uint64)
-	for _, word := range strings.Fields(reqData.Data){
-		wordFrequency[word] ++
+	for _, word := range strings.Fields(reqData.Data) {
+		wordFrequency[word]++
 	}
 
 	wordFrequencyList := make([]*wordcount.Entry, 0, len(wordFrequency))
-	for word, count := range wordFrequency{
+	for word, count := range wordFrequency {
 		wordFrequencyList = append(wordFrequencyList, &wordcount.Entry{
 			Word:  word,
 			Count: count,
@@ -37,11 +37,11 @@ func countWords(request interfaces.Serializable)(interfaces.Serializable, error)
 
 var metricsCountWords = utils.CollectServerMetrics(
 	20, 1000, countWords,
-	"results/wordcount/server/%d.json",
+	"results/aRPC/wordcount/server/%d.json",
 )
 
 // CountWords aRPC WordCount.CountWords function implementation
-func (gs *WordCountServerDefinition)CountWords(request *wordcount.Text)(*wordcount.CountedWords, error){
+func (gs *WordCountServerDefinition) CountWords(request *wordcount.Text) (*wordcount.CountedWords, error) {
 	var reqData interfaces.Serializable = request
 	respData := &wordcount.CountedWords{}
 
@@ -53,9 +53,8 @@ func (gs *WordCountServerDefinition)CountWords(request *wordcount.Text)(*wordcou
 	return respData, err
 }
 
-func main(){
+func main() {
 	aRPCController := utils.SetupServer()
 	wordcount.RegisterWordcountServer(aRPCController, &WordCountServerDefinition{})
 	utils.StartServer(aRPCController)
 }
-

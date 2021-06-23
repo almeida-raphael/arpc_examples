@@ -20,7 +20,7 @@ func getNumbers(request interfaces.Serializable) (interfaces.Serializable, error
 
 var metricsGetNumbers = utils.CollectServerMetrics(
 	20, 1000, getNumbers,
-	fmt.Sprintf("results/getrandomnumbers_%s", os.Getenv("VALUE"))+"/server/%d.json",
+	fmt.Sprintf("results/aRPC/getrandomnumbers_%s", os.Getenv("VALUE"))+"/server/%d.json",
 )
 
 // GetNumbers aRPC server function implementation

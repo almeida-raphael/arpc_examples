@@ -23,7 +23,7 @@ func average(request proto.Message) (proto.Message, error) {
 
 var metricsAverage = utils.CollectGRPCServerMetrics(
 	20, 1000, average,
-	fmt.Sprintf("results/doubletype_grpc_%s", os.Getenv("VALUE"))+"/server/%d.json",
+	fmt.Sprintf("results/gRPC/doubletype_%s", os.Getenv("VALUE"))+"/server/%d.json",
 )
 
 // Average aRPC server function implementation

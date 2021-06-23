@@ -42,7 +42,7 @@ func main() {
 
 	err = utils.RunGRPCClientRPCAndCollectMetrics(
 		20, 1000, &requestData, CountWords,
-		fmt.Sprintf("results/wordcount_grpc/client/%d.json", time.Now().UnixNano()),
+		fmt.Sprintf("results/gRPC/wordcount/client/%d.json", time.Now().UnixNano()),
 	)
 	if err != nil {
 		log.Fatal(err)

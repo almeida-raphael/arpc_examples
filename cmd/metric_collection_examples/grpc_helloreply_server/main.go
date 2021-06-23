@@ -23,7 +23,7 @@ func sayHello(request proto.Message) (proto.Message, error) {
 
 var metricsSayHello = utils.CollectGRPCServerMetrics(
 	20, 1000, sayHello,
-	"results/helloreply_grpc/server/%d.json",
+	"results/gRPC/helloreply/server/%d.json",
 )
 
 // SayHello gRPC server function implementation

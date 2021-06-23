@@ -45,7 +45,7 @@ func main() {
 
 	err = utils.RunClientRPCAndCollectMetrics(
 		20, 1000, &requestData, GetNumbers,
-		fmt.Sprintf("results/getrandomnumbers_%d/client/%d.json", value, time.Now().UnixNano()),
+		fmt.Sprintf("results/aRPC/getrandomnumbers_%d/client/%d.json", value, time.Now().UnixNano()),
 	)
 	if err != nil {
 		log.Fatal(err)

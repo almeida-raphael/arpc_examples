@@ -18,7 +18,7 @@ func sayHello(request interfaces.Serializable) (interfaces.Serializable, error) 
 
 var metricsSayHello = utils.CollectServerMetrics(
 	20, 1000, sayHello,
-	"results/helloreply/server/%d.json",
+	"results/aRPC/helloreply/server/%d.json",
 )
 
 // SayHello aRPC server function implementation

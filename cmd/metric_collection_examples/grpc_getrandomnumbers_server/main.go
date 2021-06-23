@@ -24,7 +24,7 @@ func getNumbers(request proto.Message) (proto.Message, error) {
 
 var metricsGetNumbers = utils.CollectGRPCServerMetrics(
 	20, 1000, getNumbers,
-	fmt.Sprintf("results/getrandomnumbers_grpc_%s", os.Getenv("VALUE"))+"/server/%d.json",
+	fmt.Sprintf("results/gRPC/getrandomnumbers_%s", os.Getenv("VALUE"))+"/server/%d.json",
 )
 
 // GetNumbers aRPC server function implementation

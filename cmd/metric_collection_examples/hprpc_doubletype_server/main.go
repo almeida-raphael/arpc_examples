@@ -20,7 +20,7 @@ func average(request interfaces.Serializable) (interfaces.Serializable, error) {
 
 var metricsAverage = utils.CollectServerMetrics(
 	20, 1000, average,
-	fmt.Sprintf("results/doubletype_%s", os.Getenv("VALUE"))+"/server/%d.json",
+	fmt.Sprintf("results/aRPC/doubletype_%s", os.Getenv("VALUE"))+"/server/%d.json",
 )
 
 // Average aRPC server function implementation
