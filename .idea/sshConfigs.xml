@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SshConfigs">
+    <configs>
+      <sshConfig host="35.202.178.231" id="b36ca8a8-7cc0-4a08-ade1-76d1a702f39c" keyPath="$USER_HOME$/.ssh/google_compute_engine" port="22" customName="client" nameFormat="CUSTOM" username="raphael">
+        <option name="customName" value="client" />
+      </sshConfig>
+      <sshConfig host="34.121.90.88" id="a96d2bf3-5638-436a-a83c-3682148ad2f7" keyPath="$USER_HOME$/.ssh/google_compute_engine" port="22" customName="server" nameFormat="CUSTOM" username="raphael">
+        <option name="customName" value="server" />
+      </sshConfig>
+    </configs>
+  </component>
+</project>

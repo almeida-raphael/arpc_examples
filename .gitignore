@@ -244,7 +244,9 @@ certificates
 assets/word_count.txt
 examples/*
 !examples/arpc
-hprpc/*
-!hprpc/arpc
+models/hprpc/*
+!models/hprpc/arpc
+models/arpc/*
+!models/arpc/arpc
 results
 build

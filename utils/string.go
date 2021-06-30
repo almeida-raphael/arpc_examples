@@ -1,6 +1,9 @@
 package utils
 
-import "math/rand"
+import (
+	"math/rand"
+	"strconv"
+)
 
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 ")
 
@@ -11,4 +14,13 @@ func GenerateString(n int) string {
 		b[i] = letterRunes[rand.Intn(len(letterRunes))]
 	}
 	return string(b)
+}
+
+//Atoi converts string to int
+func Atoi(data string) int {
+	val, err := strconv.Atoi(data)
+	if err != nil {
+		return 20
+	}
+	return val
 }

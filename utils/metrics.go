@@ -8,7 +8,6 @@ import (
 	"os"
 	"path"
 	"sync"
-	"sync/atomic"
 	"time"
 
 	"google.golang.org/protobuf/proto"
@@ -241,31 +240,26 @@ func initServerMetricsDataCollector(runSampleCount, runTrialsCount int) [][]time
 	return samples
 }
 
-func saveServerMetrics(
-	sampleCount, trialsCount int, currentMetrics *[][]time.Duration, currentMetricsMutex *sync.Mutex,
-	currentExecution *int32, executionTime time.Duration, saveFilePath string,
-) error {
-	sample := int(*currentExecution) / trialsCount
-	trial := int(*currentExecution) % trialsCount
+var executionCounter = 0
+var metricsRefMu sync.Mutex
 
-	fmt.Printf("saving sample %d and trial %d\n", sample+1, trial+1)
+func saveServerMetrics(
+	sampleCount, trialsCount int, currentMetrics *[][]time.Duration, executionTime time.Duration, saveFilePath string,
+) error {
+	metricsRefMu.Lock()
+	defer metricsRefMu.Unlock()
 
 	if *currentMetrics == nil {
-		currentMetricsMutex.Lock()
 		*currentMetrics = initServerMetricsDataCollector(sampleCount, trialsCount)
-		currentMetricsMutex.Unlock()
 	}
+	(*currentMetrics)[executionCounter/trialsCount][executionCounter%trialsCount] = executionTime
 
-	currentMetricsMutex.Lock()
-	(*currentMetrics)[sample][trial] = executionTime
-	currentMetricsMutex.Unlock()
-
-	if sample == sampleCount-1 && trial == trialsCount-1 {
-		currentMetricsMutex.Lock()
-		atomic.StoreInt32(currentExecution, -1) // This is -1 because CollectServerMetrics will sum 1 on defer
+	executionCounter += 1
+	fmt.Printf("saving request %d\n", executionCounter)
+	if executionCounter == sampleCount*trialsCount {
+		executionCounter = 0
 		err := saveJSON(currentMetrics, fmt.Sprintf(saveFilePath, time.Now().UnixNano()))
-		*currentMetrics = initServerMetricsDataCollector(sampleCount, trialsCount)
-		currentMetricsMutex.Unlock()
+		*currentMetrics = nil
 		return err
 	}
 
@@ -277,13 +271,9 @@ func CollectServerMetrics(
 	runSampleCount, runTrialsCount int, rpcFunction func(interfaces.Serializable) (interfaces.Serializable, error),
 	saveFilePath string,
 ) func(interfaces.Serializable) (interfaces.Serializable, error) {
-	var executionCounter int32 = 0
-	var metricsRefMu sync.Mutex
 	metricsRef := initServerMetricsDataCollector(runSampleCount, runTrialsCount)
 
 	return func(request interfaces.Serializable) (interfaces.Serializable, error) {
-		defer atomic.AddInt32(&executionCounter, 1)
-
 		executionStartTime := time.Now()
 		response, err := rpcFunction(request)
 		if err != nil {
@@ -291,8 +281,7 @@ func CollectServerMetrics(
 		}
 		executionElapsedTime := time.Since(executionStartTime)
 		if err := saveServerMetrics(
-			runSampleCount, runTrialsCount, &metricsRef, &metricsRefMu, &executionCounter, executionElapsedTime,
-			saveFilePath,
+			runSampleCount, runTrialsCount, &metricsRef, executionElapsedTime, saveFilePath,
 		); err != nil {
 			return nil, err
 		}
@@ -306,13 +295,9 @@ func CollectGRPCServerMetrics(
 	runSampleCount, runTrialsCount int, rpcFunction func(proto.Message) (proto.Message, error),
 	saveFilePath string,
 ) func(proto.Message) (proto.Message, error) {
-	var executionCounter int32 = 0
-	var metricsRefMu sync.Mutex
 	metricsRef := initServerMetricsDataCollector(runSampleCount, runTrialsCount)
 
 	return func(request proto.Message) (proto.Message, error) {
-		defer atomic.AddInt32(&executionCounter, 1)
-
 		executionStartTime := time.Now()
 		response, err := rpcFunction(request)
 		if err != nil {
@@ -320,8 +305,7 @@ func CollectGRPCServerMetrics(
 		}
 		executionElapsedTime := time.Since(executionStartTime)
 		if err := saveServerMetrics(
-			runSampleCount, runTrialsCount, &metricsRef, &metricsRefMu, &executionCounter, executionElapsedTime,
-			saveFilePath,
+			runSampleCount, runTrialsCount, &metricsRef, executionElapsedTime, saveFilePath,
 		); err != nil {
 			return nil, err
 		}

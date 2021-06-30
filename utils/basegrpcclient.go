@@ -8,6 +8,8 @@ import (
 	"google.golang.org/grpc/credentials"
 )
 
+const MaxSize = 10 * 1024 * 1024 * 1024
+
 // SetupGRPCClient Setup basic grpc client configs
 func SetupGRPCClient() (*grpc.ClientConn, error) {
 	rootCAPath := os.Getenv("CA_FILE")
@@ -20,6 +22,7 @@ func SetupGRPCClient() (*grpc.ClientConn, error) {
 
 	return grpc.Dial(
 		serverAddress,
+		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(MaxSize), grpc.MaxCallSendMsgSize(MaxSize)),
 		grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(rootCA, "")),
 		grpc.WithBlock(),
 	)

@@ -3,10 +3,13 @@ package utils
 import (
 	"context"
 	"crypto/tls"
+	"os"
+	"strconv"
+	"strings"
+
 	"github.com/almeida-raphael/arpc/channel"
 	"github.com/almeida-raphael/arpc/controller"
 	"github.com/lucas-clemente/quic-go"
-	"os"
 )
 
 // SetupServer setup basic server config
@@ -15,19 +18,26 @@ func SetupServer() controller.RPC {
 	keyFilePath := os.Getenv("KEY_FILE")
 	serverAddress := os.Getenv("SERVER_ADDRESS")
 
+	splitAddress := strings.Split(serverAddress, ":")
+	address := splitAddress[0]
+	port, err := strconv.Atoi(splitAddress[1])
+	if err != nil {
+		panic(err)
+	}
+
 	certificates, err := LoadCertificates(certFilePath, keyFilePath)
 	if err != nil {
 		panic(err)
 	}
 
 	tlsConfig := tls.Config{
-		Certificates:                []tls.Certificate{*certificates},
-		NextProtos:                  []string{"quic-arcp"},
+		Certificates: []tls.Certificate{*certificates},
+		NextProtos:   []string{"quic-arcp"},
 	}
 
 	aRPCController := controller.NewRPCController(channel.NewQUICChannel(
-		serverAddress,
-		7653,
+		address,
+		port,
 		&tlsConfig,
 		&quic.Config{
 			MaxIncomingStreams: 10000000,
@@ -38,7 +48,7 @@ func SetupServer() controller.RPC {
 }
 
 // StartServer start the server and panic on startup errors
-func StartServer(contr controller.RPC){
+func StartServer(contr controller.RPC) {
 	err := contr.StartServer(context.Background())
 	if err != nil {
 		panic(err)
