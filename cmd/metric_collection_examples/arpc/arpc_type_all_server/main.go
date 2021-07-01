@@ -20,8 +20,8 @@ func typeAll(request interfaces.Serializable) (interfaces.Serializable, error) {
 var metricsTypeAll = utils.CollectServerMetrics(
 	utils.Atoi(os.Getenv("SAMPLE_THREADS")), utils.Atoi(os.Getenv("TRIALS")), typeAll,
 	fmt.Sprintf(
-		"results/aRPC/type_all_%d_threads",
-		utils.Atoi(os.Getenv("SAMPLE_THREADS")),
+		"results/aRPC/type_all_%s_%d_threads",
+		os.Getenv("VALUE"), utils.Atoi(os.Getenv("SAMPLE_THREADS")),
 	)+"/server/%d.json",
 )
 

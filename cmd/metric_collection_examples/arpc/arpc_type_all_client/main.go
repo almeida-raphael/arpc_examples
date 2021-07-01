@@ -5,6 +5,7 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/almeida-raphael/arpc_examples/models/arpc/typeall"
@@ -14,6 +15,16 @@ import (
 )
 
 func main() {
+	valueStr := os.Getenv("VALUE")
+	var value = 1000
+	if valueStr != "" {
+		if v, err := strconv.Atoi(valueStr); err == nil {
+			value = v
+		} else {
+			log.Fatal(err)
+		}
+	}
+
 	aRPCController := utils.SetupClient()
 
 	service := typeall.NewTypeall(&aRPCController)
@@ -32,25 +43,30 @@ func main() {
 		return response, nil
 	}
 
+	requests := &typeall.Request{
+		TypesAll: make([]*typeall.TypesAll, value),
+	}
+
+	for idx := 0; idx < value; idx++ {
+		requests.TypesAll[idx] = &typeall.TypesAll{
+			Binary:  []byte(utils.GenerateString(1024)),
+			Bool:    true,
+			Float32: rand.Float32(),
+			Float64: rand.Float64(),
+			Int32:   int32(rand.Uint32()),
+			Int64:   int64(rand.Uint64()),
+			Text:    utils.GenerateString(1024),
+			Uint32:  rand.Uint32(),
+			Uint64:  rand.Uint64(),
+		}
+	}
+
 	err = utils.RunClientRPCAndCollectMetrics(
 		utils.Atoi(os.Getenv("SAMPLE_THREADS")), utils.Atoi(os.Getenv("TRIALS")),
-		&typeall.Request{
-			Binary:    []byte(utils.GenerateString(1024)),
-			Bool:      true,
-			Float32:   rand.Float32(),
-			Float64:   rand.Float64(),
-			Int32:     int32(rand.Uint32()),
-			Int64:     int64(rand.Uint64()),
-			Text:      utils.GenerateString(1024),
-			Timestamp: time.Now(),
-			Uint8:     uint8(rand.Int()),
-			Uint16:    uint16(rand.Int()),
-			Uint32:    rand.Uint32(),
-			Uint64:    rand.Uint64(),
-		}, TypeAll,
+		requests, TypeAll,
 		fmt.Sprintf(
-			"results/aRPC/type_all_%d_threads/client/%d.json",
-			utils.Atoi(os.Getenv("SAMPLE_THREADS")), time.Now().UnixNano(),
+			"results/aRPC/type_all_%d_%d_threads/client/%d.json",
+			value, utils.Atoi(os.Getenv("SAMPLE_THREADS")), time.Now().UnixNano(),
 		),
 	)
 	if err != nil {

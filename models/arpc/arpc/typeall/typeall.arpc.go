@@ -1,7 +1,7 @@
 package typeall
 
-// Request carries all data types
-type Request struct {
+// TypeAll carries all grpc and Colfer supported data types
+type TypesAll struct {
 	binary    binary
 	bool      bool
 	float32   float32
@@ -11,6 +11,11 @@ type Request struct {
 	text      text
 	uint32    uint32
 	uint64    uint64
+}
+
+// Request carries a list of typesAll
+type Request struct {
+	typesAll []TypesAll
 }
 
 // EmptyResult an empty result
