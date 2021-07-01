@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option go_package = "github.com/almeida-raphael/arpc_examples";
 
-message Request {
+message TypesAll {
 	bytes     binary = 1;
 	bool      bool = 2;
 	float     float32 = 3;
@@ -12,6 +12,10 @@ message Request {
 	string    text = 7;
 	uint32    uint32 = 11;
 	uint64    uint64 = 12;
+}
+
+message Request {
+	repeated TypesAll typesAll = 1;
 }
 
 message EmptyResult {
