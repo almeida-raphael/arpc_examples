@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+option go_package = "github.com/almeida-raphael/arpc_examples";
+
+message Request {
+  int32     int32 = 1;
+}
+
+message EmptyResult {
+}
+
+service TypeAll {
+  rpc TypeAll(Request) returns (EmptyResult) {}
+}
