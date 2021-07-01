@@ -2,6 +2,6 @@ syntax = "proto3";
 
 option go_package = "github.com/almeida-raphael/arpc_examples";
 
-message Request {
+message TypeUInt32 {
   uint32     uint32 = 1;
 }
