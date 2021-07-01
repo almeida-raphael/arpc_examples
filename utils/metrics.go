@@ -34,6 +34,12 @@ type test struct {
 	Samples      []sample `json:"samples"`
 }
 
+type SerializationComparison struct {
+	SerializationTime   []time.Duration `json:"serialization_time"`
+	DeserializationTime []time.Duration `json:"deserialization_time"`
+	Size                []int           `json:"size"`
+}
+
 func saveJSON(data interface{}, jsonPath string) error {
 	resultData, err := json.Marshal(data)
 	if err != nil {
@@ -48,6 +54,29 @@ func saveJSON(data interface{}, jsonPath string) error {
 		return err
 	}
 	return nil
+}
+
+func ExtractSerializationMetrics(data interfaces.Serializable, trials int, jsonPath string) error {
+	results := SerializationComparison{
+		SerializationTime:   make([]time.Duration, trials),
+		DeserializationTime: make([]time.Duration, trials),
+		Size:                make([]int, trials),
+	}
+	for i := 0; i < trials; i++ {
+		serializationTime, deserializationTime, err := TestSerialization(data)
+		if err != nil {
+			log.Fatal(err)
+		}
+		size, err := data.MarshalLen()
+		if err != nil {
+			log.Fatal(err)
+		}
+		results.SerializationTime[i] = *serializationTime
+		results.DeserializationTime[i] = *deserializationTime
+		results.Size[i] = size
+	}
+
+	return saveJSON(results, jsonPath)
 }
 
 func runSerializationTest(

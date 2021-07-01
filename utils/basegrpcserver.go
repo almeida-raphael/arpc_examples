@@ -28,8 +28,8 @@ func SetupGRPCServer() (net.Listener, *grpc.Server) {
 	credential := credentials.NewServerTLSFromCert(certificates)
 
 	return listen, grpc.NewServer(grpc.Creds(credential),
-		grpc.MaxRecvMsgSize(10*1024*1024),
-		grpc.MaxSendMsgSize(10*1024*1024))
+		grpc.MaxRecvMsgSize(1024*1024*1024),
+		grpc.MaxSendMsgSize(1024*1024*1024))
 }
 
 // StartGRPCServer start the server and panic on startup errors

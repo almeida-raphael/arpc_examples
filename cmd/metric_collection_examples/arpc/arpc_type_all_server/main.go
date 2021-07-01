@@ -14,7 +14,7 @@ import (
 type ServerDefinition struct{}
 
 func typeAll(request interfaces.Serializable) (interfaces.Serializable, error) {
-	return request, nil
+	return &typeall.EmptyResult{}, nil
 }
 
 var metricsTypeAll = utils.CollectServerMetrics(

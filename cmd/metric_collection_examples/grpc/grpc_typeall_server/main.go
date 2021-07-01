@@ -18,7 +18,7 @@ type ServerDefinition struct {
 
 // typeAll gRPC server function implementation
 func typeAll(request proto.Message) (proto.Message, error) {
-	return request, nil
+	return &typeall.EmptyResult{}, nil
 }
 
 var metricsTypeAll = utils.CollectGRPCServerMetrics(
