@@ -23,7 +23,7 @@ import (
 func main() {
 	trials := utils.Atoi(os.Getenv("TRIALS"))
 	value := utils.Atoi(os.Getenv("VALUE"))
-	path := "serialization_results/aRPC/%s_" + fmt.Sprintf("%d.json", value)
+	path := "serialization_results/aRPC/%s_.json"
 
 	var data interfaces.Serializable = &typebinary.Data{Value: []byte(utils.GenerateString(value))}
 	err := utils.ExtractSerializationMetrics(data, trials, fmt.Sprintf(path, "binary"))
