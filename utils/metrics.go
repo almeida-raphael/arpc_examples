@@ -79,12 +79,15 @@ func ExtractSerializationMetrics(data interfaces.Serializable, trials int, jsonP
 	return saveJSON(results, jsonPath)
 }
 
-func ExtractGRPCSerializationMetrics(data proto.Message, trials int, jsonPath string) error {
+func ExtractGRPCSerializationMetrics(dataGenerator func() proto.Message, trials int, jsonPath string) error {
 	results := SerializationComparison{
 		SerializationTime:   make([]time.Duration, trials),
 		DeserializationTime: make([]time.Duration, trials),
 		Size:                make([]int, trials),
 	}
+
+	data := dataGenerator()
+
 	for i := 0; i < trials; i++ {
 		serializationTime, deserializationTime, err := TestGRPCSerialization(data)
 		if err != nil {
