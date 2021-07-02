@@ -37,8 +37,6 @@ func main() {
 	}()
 	client := getrandomnumbers2.NewGetRandomNumbersClient(conn)
 
-	requestData := getrandomnumbers2.Amount{Value: value}
-
 	GetNumbers := func(req proto.Message) (proto.Message, error) {
 		reqData := req.(*getrandomnumbers2.Amount)
 		response, err := client.GetNumbers(context.Background(), reqData)
@@ -50,7 +48,8 @@ func main() {
 	}
 
 	err = utils.RunGRPCClientRPCAndCollectMetrics(
-		utils.Atoi(os.Getenv("SAMPLE_THREADS")), utils.Atoi(os.Getenv("TRIALS")), &requestData, GetNumbers,
+		utils.Atoi(os.Getenv("SAMPLE_THREADS")), utils.Atoi(os.Getenv("TRIALS")),
+		func() proto.Message { return &getrandomnumbers2.Amount{Value: value} }, GetNumbers,
 		fmt.Sprintf(
 			"results/gRPC/getrandomnumbers_%d_%d_threads/client/%d.json",
 			value, utils.Atoi(os.Getenv("SAMPLE_THREADS")), time.Now().UnixNano(),

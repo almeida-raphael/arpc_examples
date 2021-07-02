@@ -38,7 +38,7 @@ func main() {
 
 	err = utils.RunGRPCClientRPCAndCollectMetrics(
 		utils.Atoi(os.Getenv("SAMPLE_THREADS")), utils.Atoi(os.Getenv("TRIALS")),
-		&helloreply2.Text{Data: utils.GenerateString(1000)}, SayHello,
+		func() proto.Message { return &helloreply2.Text{Data: utils.GenerateString(1000)} }, SayHello,
 		fmt.Sprintf("results/gRPC/helloreply/client/%d.json", time.Now().UnixNano()),
 	)
 	if err != nil {

@@ -36,8 +36,6 @@ func main() {
 	}()
 	client := doubletype2.NewDoubleTypeClient(conn)
 
-	requestData := doubletype2.NumberList{Entries: utils.GenerateNumbers(value)}
-
 	Average := func(req proto.Message) (proto.Message, error) {
 		reqData := req.(*doubletype2.NumberList)
 		response, err := client.Average(context.Background(), reqData)
@@ -49,7 +47,8 @@ func main() {
 	}
 
 	err = utils.RunGRPCClientRPCAndCollectMetrics(
-		utils.Atoi(os.Getenv("SAMPLE_THREADS")), utils.Atoi(os.Getenv("TRIALS")), &requestData, Average,
+		utils.Atoi(os.Getenv("SAMPLE_THREADS")), utils.Atoi(os.Getenv("TRIALS")),
+		func() proto.Message { return &doubletype2.NumberList{Entries: utils.GenerateNumbers(value)} }, Average,
 		fmt.Sprintf("results/gRPC/doubletype_%d_%d_threads/client/%d.json", value,
 			utils.Atoi(os.Getenv("SAMPLE_THREADS")), time.Now().UnixNano()),
 	)

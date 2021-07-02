@@ -27,9 +27,6 @@ func main() {
 	client := wordcount2.NewWordCountClient(conn)
 
 	data := utils.LoadAsset()
-	requestData := wordcount2.Text{
-		Data: string(data),
-	}
 
 	CountWords := func(req proto.Message) (proto.Message, error) {
 		reqData := req.(*wordcount2.Text)
@@ -42,7 +39,12 @@ func main() {
 	}
 
 	err = utils.RunGRPCClientRPCAndCollectMetrics(
-		utils.Atoi(os.Getenv("SAMPLE_THREADS")), utils.Atoi(os.Getenv("TRIALS")), &requestData,
+		utils.Atoi(os.Getenv("SAMPLE_THREADS")), utils.Atoi(os.Getenv("TRIALS")),
+		func() proto.Message {
+			return &wordcount2.Text{
+				Data: string(data),
+			}
+		},
 		CountWords, fmt.Sprintf("results/gRPC/wordcount/client/%d.json", time.Now().UnixNano()),
 	)
 	if err != nil {

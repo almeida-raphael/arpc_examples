@@ -49,7 +49,7 @@ func main() {
 
 	err = utils.RunGRPCClientRPCAndCollectMetrics(
 		utils.Atoi(os.Getenv("SAMPLE_THREADS")), utils.Atoi(os.Getenv("TRIALS")),
-		&echo2.Numbers{Entries: utils.GenerateNumbers(value)}, Yell,
+		func() proto.Message { return &echo2.Numbers{Entries: utils.GenerateNumbers(value)} }, Yell,
 		fmt.Sprintf(
 			"results/gRPC/largedata_%d_%d_threads/client/%d.json", value,
 			utils.Atoi(os.Getenv("SAMPLE_THREADS")), time.Now().UnixNano()),
