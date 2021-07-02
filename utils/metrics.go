@@ -224,7 +224,7 @@ func RunClientRPCAndCollectMetrics(
 
 // RunGRPCClientRPCAndCollectMetrics Executes an RPC call for n samples and m trials for each sample then saves it's metrics
 func RunGRPCClientRPCAndCollectMetrics(
-	runSampleCount, runTrialsCount int, request proto.Message,
+	runSampleCount, runTrialsCount int, requestGenerator func() proto.Message,
 	rpcFunction func(proto.Message) (proto.Message, error),
 	saveFilePath string,
 ) error {
@@ -234,20 +234,21 @@ func RunGRPCClientRPCAndCollectMetrics(
 	wg := sync.WaitGroup{}
 	wg.Add(len(samples))
 	mu := sync.Mutex{}
+	responseSizeSum := 0
 
 	for idxSamples := range samples {
 		_idxSamples := idxSamples
 
-		_request := proto.Clone(request)
 		go func() {
 			fmt.Printf("Running Sample %d\n", _idxSamples+1)
 
 			aRPCTestResults := make([]time.Duration, runTrialsCount)
 			var err error
 			for idxTrial := range aRPCTestResults {
+				request := requestGenerator()
 				fmt.Printf("Running gRPC Call Trial %d\n", idxTrial+1)
 				rpcStartTime := time.Now()
-				response, err = rpcFunction(_request)
+				response, err = rpcFunction(request)
 				elapsedTime := time.Since(rpcStartTime)
 				if HandleRemoteError(err) {
 					log.Fatal(err)
@@ -256,12 +257,14 @@ func RunGRPCClientRPCAndCollectMetrics(
 			}
 
 			mu.Lock()
+			request := requestGenerator()
 			serializationTestResults, err := runGRPCSerializationTest(
 				runTrialsCount, request, response,
 			)
 			if err != nil {
 				log.Fatal(err)
 			}
+			responseSizeSum += proto.Size(response)
 
 			samples[_idxSamples] = sample{
 				SerializationTests:    serializationTestResults,
@@ -275,9 +278,18 @@ func RunGRPCClientRPCAndCollectMetrics(
 
 	wg.Wait()
 
+	requestSizeSum := 0
+	for i := 0; i < runTrialsCount; i++ {
+		requestSizeSum += proto.Size(requestGenerator())
+	}
+
+	requestSize := requestSizeSum / runTrialsCount
+
+	responseSize := responseSizeSum / (runTrialsCount * runSampleCount)
+
 	testResults := test{
-		RequestSize:  proto.Size(request),
-		ResponseSize: proto.Size(response),
+		RequestSize:  requestSize,
+		ResponseSize: responseSize,
 		Samples:      samples,
 	}
 	return saveJSON(testResults, saveFilePath)

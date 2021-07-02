@@ -16,6 +16,30 @@ import (
 	"github.com/almeida-raphael/arpc_examples/utils"
 )
 
+func buildRequest(value int) func() proto.Message {
+	return func() proto.Message {
+		requestData := &typeall.Request{
+			TypesAll: make([]*typeall.TypesAll, value),
+		}
+
+		for idx := 0; idx < value; idx++ {
+			requestData.TypesAll[idx] = &typeall.TypesAll{
+				Binary:  []byte(utils.GenerateString(1024)),
+				Bool:    true,
+				Float32: rand.Float32(),
+				Float64: rand.Float64(),
+				Int32:   int32(rand.Uint32()),
+				Int64:   int64(rand.Uint64()),
+				Text:    utils.GenerateString(1024),
+				Uint32:  rand.Uint32(),
+				Uint64:  rand.Uint64(),
+			}
+		}
+
+		return requestData
+	}
+}
+
 func main() {
 	valueStr := os.Getenv("VALUE")
 	var value = 1000
@@ -48,27 +72,9 @@ func main() {
 		return response, nil
 	}
 
-	requestData := &typeall.Request{
-		TypesAll: make([]*typeall.TypesAll, value),
-	}
-
-	for idx := 0; idx < value; idx++ {
-		requestData.TypesAll[idx] = &typeall.TypesAll{
-			Binary:  []byte(utils.GenerateString(1024)),
-			Bool:    true,
-			Float32: rand.Float32(),
-			Float64: rand.Float64(),
-			Int32:   int32(rand.Uint32()),
-			Int64:   int64(rand.Uint64()),
-			Text:    utils.GenerateString(1024),
-			Uint32:  rand.Uint32(),
-			Uint64:  rand.Uint64(),
-		}
-	}
-
 	err = utils.RunGRPCClientRPCAndCollectMetrics(
 		utils.Atoi(os.Getenv("SAMPLE_THREADS")), utils.Atoi(os.Getenv("TRIALS")),
-		requestData, TypeAll,
+		buildRequest(value), TypeAll,
 		fmt.Sprintf(
 			"results/gRPC/type_all_%d_%d_threads/client/%d.json",
 			value, utils.Atoi(os.Getenv("SAMPLE_THREADS")), time.Now().UnixNano(),
