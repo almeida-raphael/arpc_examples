@@ -24,7 +24,7 @@ import (
 func main() {
 	trials := utils.Atoi(os.Getenv("TRIALS"))
 	value := utils.Atoi(os.Getenv("VALUE"))
-	path := "serialization_results/Protobuffers/%s_.json"
+	path := "serialization_results/Protobuffers/%s.json"
 
 	var data proto.Message = &typebinary.TypeBinary{Binary: []byte(utils.GenerateString(value))}
 	err := utils.ExtractGRPCSerializationMetrics(data, trials, fmt.Sprintf(path, "binary"))
